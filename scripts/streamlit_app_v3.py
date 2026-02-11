@@ -50,7 +50,15 @@ def preparar_features(df):
             df_prep[col] = pd.to_numeric(df_prep[col], errors='coerce')
     
     # Conversión de binarias
-    columnas_binarias = ['HipertencionArterial', 'DiabetesMellitus', 'Cardiopatia']
+    columnas_binarias = [
+        'HipertencionArterial', 'DiabetesMellitus', 'Cardiopatia',
+        'Asma', 'Epilepsia', 'Artrosis', 'DislipidemiaTabaquismo',
+        'AntMorbidos', 'CirugiaPrevia', 'AlergiasMedicamentos', 'HospitalizacionReciente',
+        'DiagnosticoCardiovascular', 'DiagnosticoRespiratorio', 'DiagnosticoDigestivo',
+        'DiagnosticoNeurologico', 'DiagnosticoTraumatologico', 'DiagnosticoInfeccioso',
+        'DiagnosticoOncologico', 'DiagnosticoPsiquiatrico', 'DiagnosticoGinecologico',
+        'DiagnosticoUrologico', 'DiagnosticoDermatologico', 'DiagnosticoOftalmologico'
+    ]
     for col in columnas_binarias:
         if col in df_prep.columns:
             df_prep[col] = df_prep[col].astype(str).str.strip().str.lower()
@@ -208,29 +216,75 @@ if modo == "📝 Formulario Individual":
     
     # Usar formulario para evitar recargas constantes
     with st.form("form_prediccion"):
+        
+        # --- SECCIÓN 1: Signos Vitales y Parámetros ---
+        st.markdown("#### Signos Vitales y Parámetros Clínicos")
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("**Signos Vitales**")
             fc = st.number_input("Frecuencia Cardíaca (lpm)*", value=80, min_value=0, max_value=250, help="Latidos por minuto")
             fr = st.number_input("Frecuencia Respiratoria (rpm)*", value=16, min_value=0, max_value=60, help="Respiraciones por minuto")
             pas = st.number_input("PA Sistólica (mmHg)*", value=120, min_value=0, max_value=300, help="Presión arterial sistólica")
-            pad = st.number_input("PA Diastólica (mmHg)*", value=80, min_value=0, max_value=200, help="Presión arterial diastólica")
         
         with col2:
-            st.markdown("**Parámetros Clínicos**")
+            pad = st.number_input("PA Diastólica (mmHg)*", value=80, min_value=0, max_value=200, help="Presión arterial diastólica")
             sato2 = st.number_input("Saturación O₂ (%)*", value=98, min_value=0, max_value=100, help="Saturación de oxígeno")
             temp = st.number_input("Temperatura (°C)*", value=36.5, min_value=30.0, max_value=45.0, step=0.1, help="Temperatura corporal")
+        
+        with col3:
             glasgow = st.number_input("Glasgow*", value=15, min_value=3, max_value=15, help="Escala de coma de Glasgow (3-15)")
             triage = st.selectbox("Triage*", [1, 2, 3, 4, 5], index=2, help="1=Crítico, 5=Menor urgencia")
         
-        with col3:
-            st.markdown("**Antecedentes**")
-            hta = st.selectbox("Hipertensión Arterial*", ["No", "Si"], index=0, help="Antecedente de HTA")
-            diabetes = st.selectbox("Diabetes Mellitus*", ["No", "Si"], index=0, help="Antecedente de diabetes")
-            cardiopatia = st.selectbox("Cardiopatía*", ["No", "Si"], index=0, help="Antecedente de enfermedad cardíaca")
+        st.markdown("---")
         
-        st.caption("* Todos los campos son obligatorios para generar la predicción")
+        # --- SECCIÓN 2: Antecedentes Médicos ---
+        st.markdown("#### Antecedentes Médicos")
+        st.caption("Marque los antecedentes que apliquen al paciente")
+        
+        ant_col1, ant_col2, ant_col3 = st.columns(3)
+        
+        with ant_col1:
+            hta = st.checkbox("Hipertensión Arterial")
+            diabetes = st.checkbox("Diabetes Mellitus")
+            cardiopatia = st.checkbox("Cardiopatía")
+            asma = st.checkbox("Asma")
+        
+        with ant_col2:
+            epilepsia = st.checkbox("Epilepsia")
+            artrosis = st.checkbox("Artrosis")
+            tabaquismo = st.checkbox("Tabaquismo / Dislipidemia")
+            ant_morbidos = st.checkbox("Antecedentes Mórbidos")
+        
+        with ant_col3:
+            cirugia_previa = st.checkbox("Cirugía Previa")
+            alergias_med = st.checkbox("Alergias a Medicamentos")
+            hosp_reciente = st.checkbox("Hospitalización Reciente")
+        
+        st.markdown("---")
+        
+        # --- SECCIÓN 3: Diagnósticos por Sistema ---
+        st.markdown("#### Diagnósticos por Sistema")
+        st.caption("Marque los diagnósticos que apliquen al paciente")
+        
+        diag_col1, diag_col2, diag_col3 = st.columns(3)
+        
+        with diag_col1:
+            diag_cardiovascular = st.checkbox("Cardiovascular")
+            diag_respiratorio = st.checkbox("Respiratorio")
+            diag_digestivo = st.checkbox("Digestivo")
+            diag_neurologico = st.checkbox("Neurológico")
+        
+        with diag_col2:
+            diag_traumatologico = st.checkbox("Traumatológico")
+            diag_infeccioso = st.checkbox("Infeccioso")
+            diag_oncologico = st.checkbox("Oncológico")
+            diag_psiquiatrico = st.checkbox("Psiquiátrico")
+        
+        with diag_col3:
+            diag_ginecologico = st.checkbox("Ginecológico")
+            diag_urologico = st.checkbox("Urológico")
+            diag_dermatologico = st.checkbox("Dermatológico")
+            diag_oftalmologico = st.checkbox("Oftalmológico")
         
         st.markdown("---")
         
@@ -257,8 +311,9 @@ if modo == "📝 Formulario Individual":
                 st.error(val)
             st.stop()
         
-        # Crear DataFrame
+        # Crear DataFrame con todas las features
         data = {
+            # Signos Vitales
             'FC': [fc],
             'FR': [fr],
             'PAS': [pas],
@@ -267,9 +322,31 @@ if modo == "📝 Formulario Individual":
             'Temp': [temp],
             'Glasgow': [glasgow],
             'Triage': [triage],
-            'HipertencionArterial': [1 if hta == "Si" else 0],
-            'DiabetesMellitus': [1 if diabetes == "Si" else 0],
-            'Cardiopatia': [1 if cardiopatia == "Si" else 0]
+            # Antecedentes Médicos
+            'HipertencionArterial': [int(hta)],
+            'DiabetesMellitus': [int(diabetes)],
+            'Cardiopatia': [int(cardiopatia)],
+            'Asma': [int(asma)],
+            'Epilepsia': [int(epilepsia)],
+            'Artrosis': [int(artrosis)],
+            'DislipidemiaTabaquismo': [int(tabaquismo)],
+            'AntMorbidos': [int(ant_morbidos)],
+            'CirugiaPrevia': [int(cirugia_previa)],
+            'AlergiasMedicamentos': [int(alergias_med)],
+            'HospitalizacionReciente': [int(hosp_reciente)],
+            # Diagnósticos por Sistema
+            'DiagnosticoCardiovascular': [int(diag_cardiovascular)],
+            'DiagnosticoRespiratorio': [int(diag_respiratorio)],
+            'DiagnosticoDigestivo': [int(diag_digestivo)],
+            'DiagnosticoNeurologico': [int(diag_neurologico)],
+            'DiagnosticoTraumatologico': [int(diag_traumatologico)],
+            'DiagnosticoInfeccioso': [int(diag_infeccioso)],
+            'DiagnosticoOncologico': [int(diag_oncologico)],
+            'DiagnosticoPsiquiatrico': [int(diag_psiquiatrico)],
+            'DiagnosticoGinecologico': [int(diag_ginecologico)],
+            'DiagnosticoUrologico': [int(diag_urologico)],
+            'DiagnosticoDermatologico': [int(diag_dermatologico)],
+            'DiagnosticoOftalmologico': [int(diag_oftalmologico)],
         }
         
         df = pd.DataFrame(data)

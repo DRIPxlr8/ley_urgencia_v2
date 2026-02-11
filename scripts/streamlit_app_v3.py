@@ -211,30 +211,30 @@ if modo == "📝 Formulario Individual":
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("**Signos Vitales** ⭐")
+            st.markdown("**Signos Vitales**")
             fc = st.number_input("Frecuencia Cardíaca (lpm)*", value=80, min_value=0, max_value=250, help="Latidos por minuto")
             fr = st.number_input("Frecuencia Respiratoria (rpm)*", value=16, min_value=0, max_value=60, help="Respiraciones por minuto")
             pas = st.number_input("PA Sistólica (mmHg)*", value=120, min_value=0, max_value=300, help="Presión arterial sistólica")
             pad = st.number_input("PA Diastólica (mmHg)*", value=80, min_value=0, max_value=200, help="Presión arterial diastólica")
         
         with col2:
-            st.markdown("**Parámetros Clínicos** ⭐")
+            st.markdown("**Parámetros Clínicos**")
             sato2 = st.number_input("Saturación O₂ (%)*", value=98, min_value=0, max_value=100, help="Saturación de oxígeno")
             temp = st.number_input("Temperatura (°C)*", value=36.5, min_value=30.0, max_value=45.0, step=0.1, help="Temperatura corporal")
             glasgow = st.number_input("Glasgow*", value=15, min_value=3, max_value=15, help="Escala de coma de Glasgow (3-15)")
             triage = st.selectbox("Triage*", [1, 2, 3, 4, 5], index=2, help="1=Crítico, 5=Menor urgencia")
         
         with col3:
-            st.markdown("**Antecedentes** ⭐")
+            st.markdown("**Antecedentes**")
             hta = st.selectbox("Hipertensión Arterial*", ["No", "Si"], index=0, help="Antecedente de HTA")
             diabetes = st.selectbox("Diabetes Mellitus*", ["No", "Si"], index=0, help="Antecedente de diabetes")
             cardiopatia = st.selectbox("Cardiopatía*", ["No", "Si"], index=0, help="Antecedente de enfermedad cardíaca")
         
-        st.caption("⭐ Todos los campos son obligatorios para generar la predicción")
+        st.caption("* Todos los campos son obligatorios para generar la predicción")
         
         st.markdown("---")
         
-        submitted = st.form_submit_button("🔮 GENERAR PREDICCIÓN", type="primary", use_container_width=True)
+        submitted = st.form_submit_button("GENERAR PREDICCIÓN", type="primary", use_container_width=True)
     
     if submitted:
         
@@ -298,7 +298,7 @@ if modo == "📝 Formulario Individual":
                 unsafe_allow_html=True
             )
             st.markdown("")
-            st.info(f"💡 **Tendencia del modelo:** {resultado} ({conf:.1f}% confianza) — *pero no es concluyente*")
+            st.info(f"**Tendencia del modelo:** {resultado} ({conf:.1f}% confianza) — *pero no es concluyente*")
         else:
             # Color según resultado
             if resultado == "PERTINENTE":
